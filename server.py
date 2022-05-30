@@ -47,11 +47,14 @@ COMMAND_HANDLERS = {
 
 
 def process_command(text: str, client_addr: str):
-    command_val, sufix = text.split(" ")
-    command = Command(command_val.upper())
-    fn = COMMAND_HANDLERS[command]
+    command_arr = text.split(" ")
+    try:
+        command = Command(command_arr[0].upper())
+        fn = COMMAND_HANDLERS[command]
 
-    return fn(sufix, client_addr)
+        return fn(command_arr[1], client_addr)
+    except ValueError:
+        return f"UNKNOWN command: {command_arr[0]}"
 
 def get_missed_events(event, sub):
     idx = []
@@ -64,7 +67,7 @@ def get_missed_events(event, sub):
 def accept_wrapper(sock):
     conn, addr = sock.accept()
     print(f"Accepted connection from {addr}")
-    
+
     conn.setblocking(False)
     data = types.SimpleNamespace(addr=addr, inb=b"", outb=b"")
     events = selectors.EVENT_READ | selectors.EVENT_WRITE
